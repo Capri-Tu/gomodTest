@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>莫干山团建 · 分组信息查询</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f2f5;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, 'Noto Sans', sans-serif;
+            padding: 24px 16px 48px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            max-width: 560px;
+            width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #1a2a4f 0%, #1e3a5f 100%);
+            padding: 32px 24px 28px;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            margin-bottom: 8px;
+        }
+
+        .hero p {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin-top: 6px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(2px);
+            border-radius: 40px;
+            padding: 5px 14px;
+            font-size: 0.7rem;
+            margin-top: 14px;
+        }
+
+        .search-section {
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid #eef2f8;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            padding: 14px 18px;
+            font-size: 1rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 60px;
+            background: white;
+            transition: 0.2s;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: #2c4f7c;
+            box-shadow: 0 0 0 3px rgba(44, 79, 124, 0.15);
+        }
+
+        .search-btn {
+            background: #2c4f7c;
+            color: white;
+            border: none;
+            padding: 0 24px;
+            height: 52px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        .search-btn:active {
+            transform: scale(0.96);
+            background: #1a3a5c;
+        }
+
+        .hint {
+            font-size: 0.7rem;
+            color: #6c7a8e;
+            margin-top: 10px;
+            margin-left: 8px;
+        }
+
+        .result-area {
+            padding: 16px 24px 32px;
+        }
+
+        .result-card {
+            background: #f8fafd;
+            border-radius: 28px;
+            padding: 20px;
+            border: 1px solid #eef2f8;
+        }
+
+        .not-found {
+            background: #fff9ef;
+            border-left: 4px solid #d97706;
+            border-radius: 20px;
+            padding: 18px;
+            color: #b45309;
+            font-weight: 500;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            border-bottom: 1px solid #eef2f8;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            width: 80px;
+            font-weight: 600;
+            color: #1e2a44;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #0f172a;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .roommate-tag, .captain-tag {
+            background: #eef3fa;
+            color: #2c4f7c;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-right: 8px;
+            margin-bottom: 4px;
+        }
+
+        .captain-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 18px 24px 24px;
+            font-size: 0.75rem;
+            color: #6c7a8e;
+            border-top: 1px solid #eef2f8;
+            background: white;
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.5rem;
+            }
+            .input-group {
+                flex-direction: column;
+            }
+            .search-btn {
+                width: 100%;
+            }
+            .info-label {
+                width: 70px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="hero">
+        <h1>莫干山团建 · 分组查询</h1>
+        <p>输入姓名，查看车队、室友及车队长联系方式</p>
+        <div class="badge">杭州团队 · 6/12-6/13</div>
+    </div>
+
+    <div class="search-section">
+        <div class="input-group">
+            <input type="text" id="searchInput" class="search-box" placeholder="请输入你的全名，例如：张敏" autocomplete="off">
+            <button id="searchBtn" class="search-btn">查询</button>
+        </div>
+        <div class="hint">🔍 支持模糊查找，输入部分姓名也会匹配</div>
+    </div>
+
+    <div class="result-area" id="resultArea">
+        <div class="result-card" style="background: #f8fafd; text-align: center; color: #6c7a8e;">
+            ℹ️ 如有疑问，请联系人力资源部-王丹阳
+        </div>
+    </div>
+
+    <footer>
+        预祝大家旅途愉快 🚌
+    </footer>
+</div>
+
+<script>
+    // ============================================================
+    // 👇 1. 员工数据：姓名 → 车队 → 室友
+    // ============================================================
+    const MEMBERS_DATA = [{ name: "王永胜", bus: "1号车", roommate: "无" },
+{ name: "肖子辰", bus: "1号车", roommate: "无" },
+{ name: "孙念", bus: "1号车", roommate: "赵江浪" },
+{ name: "于月红", bus: "1号车", roommate: "张云云" },
+{ name: "丁迎建", bus: "1号车", roommate: "王喜乐" },
+{ name: "王喜乐", bus: "1号车", roommate: "丁迎建" },
+{ name: "刘威", bus: "1号车", roommate: "殷传军" },
+{ name: "庞璐", bus: "1号车", roommate: "沈心怡" },
+{ name: "沈心怡", bus: "1号车", roommate: "庞璐" },
+{ name: "毛立尔", bus: "1号车", roommate: "杨昊成" },
+{ name: "杨昊成", bus: "1号车", roommate: "毛立尔" },
+{ name: "杨晨旭", bus: "1号车", roommate: "罗春辉" },
+{ name: "罗春辉", bus: "1号车", roommate: "杨晨旭" },
+{ name: "徐胜", bus: "1号车", roommate: "李鹏飞" },
+{ name: "李鹏飞", bus: "1号车", roommate: "徐胜" },
+{ name: "罗耕", bus: "1号车", roommate: "张鹏飞" },
+{ name: "张鹏飞", bus: "1号车", roommate: "罗耕" },
+{ name: "邓阿红", bus: "1号车", roommate: "刘相敏" },
+{ name: "谢韬", bus: "1号车", roommate: "梁虎" },
+{ name: "张云云", bus: "1号车", roommate: "于月红" },
+{ name: "赵江浪", bus: "1号车", roommate: "孙念" },
+{ name: "曾思航", bus: "1号车", roommate: "罗文杰" },
+{ name: "罗文杰", bus: "1号车", roommate: "曾思航" },
+{ name: "金正辉", bus: "1号车", roommate: "陈瑞楠" },
+{ name: "陈瑞楠", bus: "1号车", roommate: "金正辉" },
+{ name: "雷斌", bus: "1号车", roommate: "赵旭" },
+{ name: "赵旭", bus: "1号车", roommate: "雷斌" },
+{ name: "梁虎", bus: "1号车", roommate: "谢韬" },
+{ name: "殷传军", bus: "1号车", roommate: "刘威" },
+{ name: "张涛", bus: "1号车", roommate: "王航闯" },
+{ name: "王航闯", bus: "1号车", roommate: "张涛" },
+{ name: "谢文懋", bus: "1号车", roommate: "韩雨昕" },
+{ name: "韩雨昕", bus: "1号车", roommate: "谢文懋" },
+{ name: "李玲玉", bus: "1号车", roommate: "黄晴" },
+{ name: "黄晴", bus: "1号车", roommate: "李玲玉" },
+{ name: "张林婧", bus: "1号车", roommate: "赵娇蓉" },
+{ name: "赵娇蓉", bus: "1号车", roommate: "张林婧" },
+{ name: "宋心怡", bus: "1号车", roommate: "余淑娟" },
+{ name: "余淑娟", bus: "1号车", roommate: "宋心怡" },
+{ name: "顾竹青", bus: "1号车", roommate: "晁蓉蓉" },
+{ name: "晁蓉蓉", bus: "1号车", roommate: "顾竹青" },
+{ name: "裘超莹", bus: "1号车", roommate: "乔茜茜" },
+{ name: "乔茜茜", bus: "1号车", roommate: "裘超莹" },
+{ name: "刘相敏", bus: "1号车", roommate: "邓阿红" },
+{ name: "吴玄", bus: "2号车", roommate: "阚傲雪" },
+{ name: "阚傲雪", bus: "2号车", roommate: "吴玄" },
+{ name: "徐春英", bus: "2号车", roommate: "司风娟" },
+{ name: "司风娟", bus: "2号车", roommate: "徐春英" },
+{ name: "陶丽霞", bus: "2号车", roommate: "王萱萱" },
+{ name: "王萱萱", bus: "2号车", roommate: "陶丽霞" },
+{ name: "邹堂梅", bus: "2号车", roommate: "王建琴" },
+{ name: "王建琴", bus: "2号车", roommate: "邹堂梅" },
+{ name: "张雪可", bus: "2号车", roommate: "万胜花" },
+{ name: "万胜花", bus: "2号车", roommate: "张雪可" },
+{ name: "罗婷", bus: "2号车", roommate: "张艳" },
+{ name: "张艳", bus: "2号车", roommate: "罗婷" },
+{ name: "孙利娜", bus: "2号车", roommate: "郭亚利" },
+{ name: "郭亚利", bus: "2号车", roommate: "孙利娜" },
+{ name: "王仕燕", bus: "2号车", roommate: "周海琼" },
+{ name: "周海琼", bus: "2号车", roommate: "王仕燕" },
+{ name: "张芷静", bus: "2号车", roommate: "李优" },
+{ name: "李优", bus: "2号车", roommate: "张芷静" },
+{ name: "王珏", bus: "2号车", roommate: "刘素珍" },
+{ name: "刘素珍", bus: "2号车", roommate: "王珏" },
+{ name: "赵洁", bus: "2号车", roommate: "金开英" },
+{ name: "金开英", bus: "2号车", roommate: "赵洁" },
+{ name: "刘兰", bus: "2号车", roommate: "文显容" },
+{ name: "文显容", bus: "2号车", roommate: "刘兰" },
+{ name: "郑静", bus: "2号车", roommate: "陈金萍" },
+{ name: "陈金萍", bus: "2号车", roommate: "郑静" },
+{ name: "李瑞勤", bus: "2号车", roommate: "王亚" },
+{ name: "王亚", bus: "2号车", roommate: "李瑞勤" },
+{ name: "张植恒", bus: "2号车", roommate: "龙凤" },
+{ name: "龙凤", bus: "2号车", roommate: "张植恒" },
+{ name: "廖娟", bus: "2号车", roommate: "张盼" },
+{ name: "张盼", bus: "2号车", roommate: "廖娟" },
+{ name: "何正辉", bus: "2号车", roommate: "常永雨" },
+{ name: "常永雨", bus: "2号车", roommate: "何正辉" },
+{ name: "杨俊超", bus: "2号车", roommate: "丁方臣" },
+{ name: "丁方臣", bus: "2号车", roommate: "杨俊超" },
+{ name: "孙超", bus: "2号车", roommate: "董会朋" },
+{ name: "董会朋", bus: "2号车", roommate: "孙超" },
+{ name: "耿红亮", bus: "2号车", roommate: "陈家禹" },
+{ name: "陈家禹", bus: "2号车", roommate: "耿红亮" },
+{ name: "杨中芳", bus: "2号车", roommate: "赵妍" },
+{ name: "赵妍", bus: "2号车", roommate: "杨中芳" },
+{ name: "何长青", bus: "3号车", roommate: "赵宇" },
+{ name: "赵宇", bus: "3号车", roommate: "何长青" },
+{ name: "苏雨嫣", bus: "3号车", roommate: "冉明月" },
+{ name: "冉明月", bus: "3号车", roommate: "苏雨嫣" },
+{ name: "潘欣洁", bus: "3号车", roommate: "龙昌英" },
+{ name: "龙昌英", bus: "3号车", roommate: "潘欣洁" },
+{ name: "杨佩瑶", bus: "3号车", roommate: "杨芬" },
+{ name: "杨芬", bus: "3号车", roommate: "杨佩瑶" },
+{ name: "耿梦雅", bus: "3号车", roommate: "朱欣怡" },
+{ name: "朱欣怡", bus: "3号车", roommate: "耿梦雅" },
+{ name: "毛琴", bus: "3号车", roommate: "田嘉欣" },
+{ name: "田嘉欣", bus: "3号车", roommate: "毛琴" },
+{ name: "何叶", bus: "3号车", roommate: "单丽琼" },
+{ name: "单丽琼", bus: "3号车", roommate: "何叶" },
+{ name: "刘薇", bus: "3号车", roommate: "苟金玲" },
+{ name: "苟金玲", bus: "3号车", roommate: "刘薇" },
+{ name: "梁定", bus: "3号车", roommate: "周增凤" },
+{ name: "周增凤", bus: "3号车", roommate: "梁定" },
+{ name: "彭晶", bus: "3号车", roommate: "李轩" },
+{ name: "李轩", bus: "3号车", roommate: "彭晶" },
+{ name: "林娟", bus: "3号车", roommate: "李小芹" },
+{ name: "李小芹", bus: "3号车", roommate: "林娟" },
+{ name: "陶维龙", bus: "3号车", roommate: "范铭羽" },
+{ name: "范铭羽", bus: "3号车", roommate: "陶维龙" },
+{ name: "周建财", bus: "3号车", roommate: "徐文涛" },
+{ name: "徐文涛", bus: "3号车", roommate: "周建财" },
+{ name: "唐龙飞", bus: "3号车", roommate: "廖兴勇" },
+{ name: "廖兴勇", bus: "3号车", roommate: "唐龙飞" },
+{ name: "李婷", bus: "3号车", roommate: "徐琳琳" },
+{ name: "徐琳琳", bus: "3号车", roommate: "李婷" },
+{ name: "王耕", bus: "3号车", roommate: "钱文军" },
+{ name: "钱文军", bus: "3号车", roommate: "王耕" },
+{ name: "孙有兰", bus: "3号车", roommate: "彭利英" },
+{ name: "彭利英", bus: "3号车", roommate: "孙有兰" },
+{ name: "李泽松", bus: "3号车", roommate: "董凯强" },
+{ name: "董凯强", bus: "3号车", roommate: "李泽松" },
+{ name: "仲傲然", bus: "3号车", roommate: "张鸿翼" },
+{ name: "张鸿翼", bus: "3号车", roommate: "仲傲然" },
+{ name: "朱昭羊", bus: "3号车", roommate: "千雄杰" },
+{ name: "千雄杰", bus: "3号车", roommate: "朱昭羊" },
+{ name: "沈喜帅", bus: "3号车", roommate: "沈贵华" },
+{ name: "沈贵华", bus: "3号车", roommate: "沈喜帅" },
+{ name: "张小敏", bus: "3号车", roommate: "郭红英" },
+{ name: "郭红英", bus: "3号车", roommate: "张小敏" },
+{ name: "李玲瑰", bus: "4号车", roommate: "李春露" },
+{ name: "李春露", bus: "4号车", roommate: "李玲瑰" },
+{ name: "严丙庚", bus: "4号车", roommate: "王涛" },
+{ name: "王涛", bus: "4号车", roommate: "严丙庚" },
+{ name: "齐奇", bus: "4号车", roommate: "王大惠" },
+{ name: "王大惠", bus: "4号车", roommate: "齐奇" },
+{ name: "李伟仙", bus: "4号车", roommate: "唐丹丹" },
+{ name: "唐丹丹", bus: "4号车", roommate: "李伟仙" },
+{ name: "卫燕华", bus: "4号车", roommate: "罗常安" },
+{ name: "罗常安", bus: "4号车", roommate: "卫燕华" },
+{ name: "徐田杰", bus: "4号车", roommate: "程艺雪" },
+{ name: "程艺雪", bus: "4号车", roommate: "徐田杰" },
+{ name: "杨秀菊", bus: "4号车", roommate: "桂成橙" },
+{ name: "桂成橙", bus: "4号车", roommate: "杨秀菊" },
+{ name: "陈佳梅", bus: "4号车", roommate: "宋应慧" },
+{ name: "宋应慧", bus: "4号车", roommate: "陈佳梅" },
+{ name: "于慧馨", bus: "4号车", roommate: "杨中培" },
+{ name: "杨中培", bus: "4号车", roommate: "于慧馨" },
+{ name: "吴永彩", bus: "4号车", roommate: "王永兰" },
+{ name: "王永兰", bus: "4号车", roommate: "吴永彩" },
+{ name: "张雄", bus: "4号车", roommate: "赵重阳" },
+{ name: "赵重阳", bus: "4号车", roommate: "张雄" },
+{ name: "曹林刚", bus: "4号车", roommate: "龙玉辉" },
+{ name: "龙玉辉", bus: "4号车", roommate: "曹林刚" },
+{ name: "曹孔鑫", bus: "4号车", roommate: "李彬峰" },
+{ name: "李彬峰", bus: "4号车", roommate: "曹孔鑫" },
+{ name: "陈龙龙", bus: "4号车", roommate: "王云肖" },
+{ name: "王云肖", bus: "4号车", roommate: "陈龙龙" },
+{ name: "陈晓惠", bus: "4号车", roommate: "韦灿灿" },
+{ name: "韦灿灿", bus: "4号车", roommate: "陈晓惠" },
+{ name: "张俊", bus: "4号车", roommate: "狄庆娟" },
+{ name: "狄庆娟", bus: "4号车", roommate: "张俊" },
+{ name: "李金香", bus: "4号车", roommate: "王蕊英" },
+{ name: "王蕊英", bus: "4号车", roommate: "李金香" },
+{ name: "郑晓翠", bus: "4号车", roommate: "龙贵凤" },
+{ name: "龙贵凤", bus: "4号车", roommate: "郑晓翠" },
+{ name: "马仁洁", bus: "4号车", roommate: "林灵" },
+{ name: "林灵", bus: "4号车", roommate: "马仁洁" },
+{ name: "陈田田", bus: "4号车", roommate: "时新灵" },
+{ name: "时新灵", bus: "4号车", roommate: "陈田田" },
+{ name: "王丹阳", bus: "4号车", roommate: "刘敏燕" },
+{ name: "刘敏燕", bus: "4号车", roommate: "王丹阳" },
+{ name: "陈静", bus: "5号车", roommate: "杨慧娜" },
+{ name: "杨慧娜", bus: "5号车", roommate: "陈静" },
+{ name: "李莉", bus: "5号车", roommate: "董秀" },
+{ name: "董秀", bus: "5号车", roommate: "李莉" },
+{ name: "周北生", bus: "5号车", roommate: "杜宁波" },
+{ name: "杜宁波", bus: "5号车", roommate: "周北生" },
+{ name: "沈仕婷", bus: "5号车", roommate: "彭梦娇" },
+{ name: "彭梦娇", bus: "5号车", roommate: "沈仕婷" },
+{ name: "孟婉婉", bus: "5号车", roommate: "卢娜娜" },
+{ name: "卢娜娜", bus: "5号车", roommate: "孟婉婉" },
+{ name: "陆文凤", bus: "5号车", roommate: "张文静" },
+{ name: "张文静", bus: "5号车", roommate: "陆文凤" },
+{ name: "郭艳", bus: "5号车", roommate: "何丽琴" },
+{ name: "何丽琴", bus: "5号车", roommate: "郭艳" },
+{ name: "周小勇", bus: "5号车", roommate: "周宗峰" },
+{ name: "周宗峰", bus: "5号车", roommate: "周小勇" },
+{ name: "赵雅倩", bus: "5号车", roommate: "杨习芝" },
+{ name: "杨习芝", bus: "5号车", roommate: "赵雅倩" },
+{ name: "程吕彬", bus: "5号车", roommate: "孙孟孟" },
+{ name: "孙孟孟", bus: "5号车", roommate: "程吕彬" },
+{ name: "张磊", bus: "5号车", roommate: "廖鹏飞" },
+{ name: "廖鹏飞", bus: "5号车", roommate: "张磊" },
+{ name: "向琳", bus: "5号车", roommate: "徐迪迪" },
+{ name: "徐迪迪", bus: "5号车", roommate: "向琳" },
+{ name: "张银霜", bus: "5号车", roommate: "聂雨晴" },
+{ name: "聂雨晴", bus: "5号车", roommate: "张银霜" },
+{ name: "王坤", bus: "5号车", roommate: "王超" },
+{ name: "王超", bus: "5号车", roommate: "王坤" },
+{ name: "杨廷英", bus: "5号车", roommate: "陈华" },
+{ name: "陈华", bus: "5号车", roommate: "杨廷英" },
+{ name: "潘娆", bus: "5号车", roommate: "施雪雪" },
+{ name: "施雪雪", bus: "5号车", roommate: "潘娆" },
+{ name: "王柳", bus: "5号车", roommate: "孙金波" },
+{ name: "孙金波", bus: "5号车", roommate: "王柳" },
+{ name: "胡议尹", bus: "5号车", roommate: "李湘连" },
+{ name: "李湘连", bus: "5号车", roommate: "胡议尹" },
+{ name: "刘冬冬", bus: "5号车", roommate: "毛洪涛" },
+{ name: "毛洪涛", bus: "5号车", roommate: "刘冬冬" },
+{ name: "张祯", bus: "5号车", roommate: "闫笑笑" },
+{ name: "闫笑笑", bus: "5号车", roommate: "张祯" },
+{ name: "马刘莎", bus: "5号车", roommate: "关文婷" },
+{ name: "关文婷", bus: "5号车", roommate: "马刘莎" },
+    ];
+
+    // ============================================================
+    // 👇 2. 车队长数据：每辆车可配置1-2位队长
+    // ============================================================
+    const CAPTAINS_DATA = {
+        "1号车": [
+            { name: "黄晴", phone: "17680691649" },
+            { name: "梁虎", phone: "18755191687" }
+        ],
+        "2号车": [
+            { name: "吴玄", phone: "18356774002" },
+            { name: "何正辉", phone: "13370393959" }
+        ],
+        "3号车": [
+            { name: "何长青", phone: "13454402301" },
+            { name: "李玲瑰", phone: "18862655776" }
+        ],
+        "4号车": [
+            { name: "严丙庚", phone: "13917980535" },
+            { name: "苏雨嫣", phone: "18368021289" }
+        ],
+        "5号车": [
+            { name: "陈静", phone: "18337150063" },
+            { name: "杨慧娜", phone: "15690831500" }
+        ],
+    };
+
+    // ===== 以下为查询逻辑 =====
+    function normalizeName(str) {
+        return str.trim().replace(/\s+/g, '');
+    }
+
+    function searchMember(keyword) {
+        if (!keyword) return null;
+        const normalizedKeyword = normalizeName(keyword);
+        let exactMatch = MEMBERS_DATA.find(m => normalizeName(m.name) === normalizedKeyword);
+        if (exactMatch) return exactMatch;
+        let fuzzyMatch = MEMBERS_DATA.find(m => normalizeName(m.name).includes(normalizedKeyword) || normalizedKeyword.includes(normalizeName(m.name)));
+        return fuzzyMatch || null;
+    }
+
+    function getCaptainsByBus(busName) {
+        const captains = CAPTAINS_DATA[busName];
+        if (!captains || captains.length === 0) {
+            return [{ name: "待确认", phone: "请稍后留意群通知" }];
+        }
+        return captains;
+    }
+
+    function renderResult(member, searchRaw) {
+        const resultDiv = document.getElementById('resultArea');
+        if (!member) {
+            resultDiv.innerHTML = `
+                <div class="not-found">
+                    🔍 未找到 “${escapeHtml(searchRaw)}” 的信息<br>
+                    请确认姓名是否正确，或联系人力资源部-王丹阳协助。
+                </div>
+            `;
+            return;
+        }
+
+        const captains = getCaptainsByBus(member.bus);
+        const roommateDisplay = (member.roommate && member.roommate.trim()) ? member.roommate : '单人间（无室友）';
+
+        let captainsHtml = '';
+        captains.forEach(captain => {
+            captainsHtml += `<span class="captain-tag">${escapeHtml(captain.name)} · ${escapeHtml(captain.phone)}</span>`;
+        });
+
+        resultDiv.innerHTML = `
+            <div class="result-card">
+                <div class="info-row">
+                    <div class="info-label">👤 姓名</div>
+                    <div class="info-value">${escapeHtml(member.name)}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">🚌 车队</div>
+                    <div class="info-value"><strong>${escapeHtml(member.bus)}</strong></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">🏠 室友</div>
+                    <div class="info-value"><span class="roommate-tag">${escapeHtml(roommateDisplay)}</span></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">👑 车队长</div>
+                    <div class="info-value"><div class="captain-list">${captainsHtml}</div></div>
+                </div>
+                <div class="info-row" style="padding-top: 12px;">
+                    <div class="info-label"></div>
+                    <div class="info-value" style="font-size: 0.7rem; color: #6c7a8e;">✅ 出发前请记好车队及车队长电话，如有问题可及时联系</div>
+                </div>
+            </div>
+        `;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function handleSearch() {
+        const inputEl = document.getElementById('searchInput');
+        const rawValue = inputEl.value;
+        if (!rawValue.trim()) {
+            document.getElementById('resultArea').innerHTML = `
+                <div class="result-card" style="background: #f8fafd; text-align: center; color: #6c7a8e;">
+                    ℹ️ 如有疑问，请联系人力资源部-王丹阳
+                </div>
+            `;
+            return;
+        }
+        const matched = searchMember(rawValue);
+        renderResult(matched, rawValue.trim());
+    }
+
+    const btn = document.getElementById('searchBtn');
+    const input = document.getElementById('searchInput');
+    btn.addEventListener('click', handleSearch);
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSearch();
+        }
+    });
+</script>
+</body>
+</html>
